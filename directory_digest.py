@@ -24,7 +24,11 @@ def hashDirectory(startDirectory, directoryHasher):
 
     for root, dirnames, filenames in os.walk(startDirectory):
         for filename in filenames:
-            directoryHasher.update(hashFile(open(root + '/' + filename, 'rb'), fileHasher))
+            # supress all exceptions in connection with file openings and readings
+            try:
+                directoryHasher.update(hashFile(open(root + '/' + filename, 'rb'), fileHasher))
+            except:
+                pass
 
     return directoryHasher.hexdigest()
 
@@ -32,7 +36,7 @@ def encodeDirectoryName(directoryName):
     return directoryName.replace('/', '_')
 
 def getStoredDirectoryDigestPath(directoryName, digest):
-    return DIGEST_STORE_DIRECTORY + '/' + directoryName.replace('/', '_') + '.' + digest
+    return DIGEST_STORE_DIRECTORY + '/' + directoryName.replace('/', '_').replace('.', '%2') + '.' + digest
 
 def isDirectoryDigestChanged(directoryName, digest):
     return not os.path.exists(getStoredDirectoryDigestPath(directoryName, digest))
